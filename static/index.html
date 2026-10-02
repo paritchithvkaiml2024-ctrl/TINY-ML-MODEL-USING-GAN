@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TinyML IIoT & GAN Edge Anomaly Platform</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <!-- Chart.js and Font Awesome -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="top-header">
+    <div class="brand-title">
+      <div class="brand-icon">
+        <i class="fa-solid fa-microchip"></i>
+      </div>
+      <div class="brand-text">
+        <h1>TinyML & GAN Edge Anomaly Platform</h1>
+        <p>Physics-Informed Neural Networks • IIoT Multi-Protocol Ingestion • SHAP/LIME Explainability</p>
+      </div>
+    </div>
+    <div class="protocol-badges">
+      <div class="protocol-pill"><span class="pulse-dot"></span> OPC-UA (Binary)</div>
+      <div class="protocol-pill"><span class="pulse-dot"></span> MQTT v5 (JSON)</div>
+      <div class="protocol-pill"><span class="pulse-dot"></span> Modbus-TCP (Port 502)</div>
+      <div class="protocol-pill"><span class="pulse-dot" style="background:#00f0ff;box-shadow:0 0 8px #00f0ff;"></span> InfluxDB: 3.84M pts/day</div>
+    </div>
+  </header>
+
+  <!-- Live KPI Metrics Ribbon -->
+  <div class="kpi-row">
+    <div class="kpi-box">
+      <div class="label">Total Points Ingested</div>
+      <div class="value" id="kpi-total-points">24,850,000</div>
+    </div>
+    <div class="kpi-box">
+      <div class="label">Ingestion Latency</div>
+      <div class="value" id="kpi-latency">1.4 <span class="unit">ms</span></div>
+    </div>
+    <div class="kpi-box">
+      <div class="label">Edge Quantized Latency</div>
+      <div class="value" id="kpi-edge-lat" style="color:var(--accent-cyan)">1.18 <span class="unit">ms</span></div>
+    </div>
+    <div class="kpi-box">
+      <div class="label">Machine Health Index</div>
+      <div class="value" id="kpi-health-index" style="color:var(--accent-emerald)">96.4 <span class="unit">%</span></div>
+    </div>
+    <div class="kpi-box">
+      <div class="label">Estimated RUL</div>
+      <div class="value" id="kpi-rul">11,420 <span class="unit">hrs</span></div>
+    </div>
+    <div class="kpi-box">
+      <div class="label">Physics PDE Consistency</div>
+      <div class="value" id="kpi-physics-score" style="color:var(--accent-purple)">98.2 <span class="unit">%</span></div>
+    </div>
+  </div>
+
+  <!-- Main Dashboard Grid -->
+  <main class="dashboard-grid">
+
+    <!-- Card 1: IIoT High-Frequency Telemetry Stream -->
+    <section class="card col-8">
+      <div class="card-header">
+        <div class="card-title">
+          <i class="fa-solid fa-chart-line"></i> IIoT High-Frequency Robotic Telemetry
+        </div>
+        <div class="control-panel" style="margin-bottom:0;">
+          <button class="btn btn-primary" id="btn-anomaly-none" onclick="setAnomalyMode('NONE')">
+            <i class="fa-solid fa-circle-check"></i> Normal
+          </button>
+          <button class="btn btn-danger" onclick="setAnomalyMode('BEARING_OVERHEAT')">
+            <i class="fa-solid fa-fire"></i> Thermal Overheat
+          </button>
+          <button class="btn btn-danger" onclick="setAnomalyMode('JOINT_TORQUE_SPIKE')">
+            <i class="fa-solid fa-bolt"></i> Torque Spike
+          </button>
+          <button class="btn btn-danger" onclick="setAnomalyMode('VIBRATION_FATIGUE')">
+            <i class="fa-solid fa-wave-square"></i> Vibration Fatigue
+          </button>
+        </div>
+      </div>
+
+      <!-- Telemetry Chart -->
+      <div style="height: 240px; position: relative; margin-bottom: 1rem;">
+        <canvas id="telemetryChart"></canvas>
+      </div>
+
+      <!-- InfluxDB Line Protocol Feed -->
+      <div style="margin-top: 0.5rem;">
+        <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.3rem;">
+          <i class="fa-solid fa-database"></i> Live InfluxDB Line-Protocol Ingestion Stream:
+        </div>
+        <div class="influx-terminal" id="influx-terminal-output">
+          robot_telemetry,cell=AUTOMATION_CELL_04,robot=ROBOT_ARM_KR210_R2700 torque=42.10,temp=61.40,vibration=1.340,current=13.20,rpm=1455.0 1696245000000000000
+        </div>
+      </div>
+    </section>
+
+    <!-- Card 2: Generative AI Defect Augmentation Studio (cDCGAN) -->
+    <section class="card col-4">
+      <div class="card-header">
+        <div class="card-title">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> cDCGAN Defect Generator
+        </div>
+        <span class="badge">Z-Dim: 64</span>
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Defect Category</span>
+          <span id="label-defect-type">Surface Micro-Crack</span>
+        </div>
+        <select class="select-input" id="select-defect-type" onchange="onDefectTypeChange()">
+          <option value="0">Surface Micro-Crack</option>
+          <option value="1">Thermal Spallation</option>
+          <option value="2">Weld Porosity / Void</option>
+          <option value="3">Corrosion Pitting</option>
+          <option value="4">Fatigue Scuffing</option>
+        </select>
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>Defect Severity</span>
+          <span id="label-severity-val">85%</span>
+        </div>
+        <input type="range" class="slider-input" id="input-severity" min="0.1" max="1.0" step="0.05" value="0.85" oninput="onSeverityInput(this.value)">
+      </div>
+
+      <div class="gan-preview-container">
+        <div class="gan-image-frame">
+          <img id="gan-preview-img" src="" alt="Synthesized Defect">
+        </div>
+        <div style="flex: 1; font-size: 0.75rem;">
+          <div style="font-weight: 600; color: var(--accent-cyan); margin-bottom: 0.3rem;" id="gan-defect-title">Surface Micro-Crack</div>
+          <p style="color: var(--text-secondary); margin-bottom: 0.6rem;">Augments edge training dataset to mitigate rare defect scarcity.</p>
+          <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="generateGANSample()">
+            <i class="fa-solid fa-dice"></i> Synthesize & Send to Edge
+          </button>
+        </div>
+      </div>
+
+      <!-- Latent Space Morphing Strip -->
+      <div style="margin-top: 0.85rem;">
+        <div style="font-size: 0.72rem; color: var(--text-muted); display:flex; justify-content:space-between;">
+          <span>Latent Space Progression Morphing</span>
+          <span style="color:var(--accent-cyan); cursor:pointer;" onclick="runMorphing()"><i class="fa-solid fa-play"></i> Morph</span>
+        </div>
+        <div class="morph-strip" id="morph-strip-container">
+          <!-- Morphing thumbnails injected dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Card 3: TinyML Vision Anomaly Inspector -->
+    <section class="card col-4">
+      <div class="card-header">
+        <div class="card-title">
+          <i class="fa-solid fa-camera"></i> TinyML Edge Vision Inspector
+        </div>
+        <span class="badge badge-success" id="badge-edge-status">Nominal</span>
+      </div>
+
+      <div class="edge-camera-viewport" id="edge-camera-viewport">
+        <img id="edge-camera-img" src="" alt="Edge Feed">
+        <div class="bounding-box-overlay" id="bbox-overlay" style="display:none;">
+          <div class="bbox-label" id="bbox-label">Crack: 94.2%</div>
+        </div>
+      </div>
+
+      <div class="kpi-row" style="margin-top: 0.75rem; margin-bottom: 0.5rem;">
+        <div class="kpi-box">
+          <div class="label">Inference FP32</div>
+          <div class="value" id="edge-fp32-lat">4.2 <span class="unit">ms</span></div>
+        </div>
+        <div class="kpi-box">
+          <div class="label">INT8 Quantized</div>
+          <div class="value" id="edge-int8-lat" style="color:var(--accent-cyan)">1.18 <span class="unit">ms</span></div>
+        </div>
+        <div class="kpi-box">
+          <div class="label">SRAM Memory</div>
+          <div class="value">28.4 <span class="unit">KB</span></div>
+        </div>
+      </div>
+
+      <div style="font-size: 0.73rem; color: var(--text-secondary); display:flex; justify-content:space-between; margin-top:0.4rem;">
+        <span>Target: ARM Ethos-U55 NPU (8.5 mW)</span>
+        <span style="color:var(--accent-emerald)"><i class="fa-solid fa-check"></i> Sub-10ms Verified</span>
+      </div>
+    </section>
+
+    <!-- Card 4: Physics-Informed Neural Network (PINN) Thermal Solver -->
+    <section class="card col-4">
+      <div class="card-header">
+        <div class="card-title">
+          <i class="fa-solid fa-atom"></i> PINN 2D Thermal PDE Solver
+        </div>
+        <span class="badge" id="pinn-status-badge">Physics Validated</span>
+      </div>
+
+      <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--accent-cyan); background: rgba(0,0,0,0.3); padding: 0.4rem 0.6rem; border-radius: 4px; margin-bottom: 0.75rem; word-break: break-all;">
+        ρ·c_p(∂T/∂t) = k·∇²T + Q_friction + Q_joule - h(T - T_amb)
+      </div>
+
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <div class="spatial-grid" id="pinn-spatial-heatmap">
+          <!-- 10x10 Heatmap cells -->
+        </div>
+        <div style="flex: 1; font-size: 0.76rem;">
+          <div style="margin-bottom: 0.4rem;">
+            <div style="color: var(--text-muted);">PDE Residual (ℛ):</div>
+            <div style="font-family: var(--font-mono); font-size: 1.05rem; font-weight: 700;" id="pinn-residual-val">0.0342</div>
+          </div>
+          <div style="margin-bottom: 0.4rem;">
+            <div style="color: var(--text-muted);">PINN Temp Prediction:</div>
+            <div style="font-family: var(--font-mono); font-size: 1.05rem; color: var(--accent-amber);" id="pinn-temp-val">64.8 °C</div>
+          </div>
+          <div>
+            <div style="color: var(--text-muted);">Sensor Divergence:</div>
+            <div style="font-family: var(--font-mono); font-size: 1.05rem;" id="pinn-div-val">1.2 °C</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Card 5: Explainable AI (SHAP & LIME) & Maintenance Scheduler -->
+    <section class="card col-4">
+      <div class="card-header">
+        <div class="card-title">
+          <i class="fa-solid fa-brain"></i> SHAP & LIME Maintenance Hub
+        </div>
+        <span class="badge badge-warning" id="workorder-urgency-badge">Optimal</span>
+      </div>
+
+      <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+        SHAP Telemetry Attribution Breakdown:
+      </div>
+
+      <div id="shap-breakdown-list">
+        <!-- Dynamic SHAP attribution bars -->
+      </div>
+
+      <!-- Work Order Summary Box -->
+      <div class="work-order-box" id="work-order-container">
+        <div class="work-order-title">
+          <span id="wo-id">WO-IIOT-48921</span>
+          <span id="wo-window" style="color:var(--accent-emerald)">Routine in 45 Days</span>
+        </div>
+        <ul class="task-list" id="wo-task-list">
+          <li>Continuous condition monitoring. No active alerts.</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
